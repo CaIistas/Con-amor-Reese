@@ -212,7 +212,7 @@ function atacar(tipo) {
   vidaReese -= Math.floor(Math.random() * 20) + 5;
   vidaReese = Math.max(0, vidaReese);
   document.getElementById('vida-reese').value = vidaReese;
-  cambiarExpresionBatalla('feliz');
+  cambiarExpresionBatalla('normal');
   mostrarMensajeBatalla(`Usaste ${tipo}! Como la enamoras, mal`);
 
   if (vidaReese <= 0) {
