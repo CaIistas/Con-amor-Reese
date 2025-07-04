@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Con amor, Reese</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Permíteme demostrarte mi amor de la forma que sé" />
+  <meta name="keywords" content="Alaska, amor, novia, te amo, Reese, de Reese para Alaska" />
+  <link rel="stylesheet" href="assets/styles/styles.css" />
+  <link rel="icon" type="image/png" href="assets/img/gatito.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Palanquin+Dark&family=Lato&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+</head>
+<body>
+
+<!-- Pantalla de Inicio -->
+<div id="pantalla-inicio" class="pantalla-inicio">
+  <h1>Con amor, Reese</h1>
+  <button id="btn-iniciar">Iniciar</button>
+</div>
+
+<!-- Música -->
+<audio id="musica-fondo" src="assets/music/valentine.mp3" loop></audio>
+
+<!-- Escena del diálogo -->
+<div id="escena" class="escena" style="display:none;">
+  <div class="personaje-wrapper">
+    <img id="personaje" src="assets/img/personaje-feliz.png" alt="Personaje" />
+  </div>
+  <div class="dialogo-container">
+    <div id="dialogo" class="dialogo-burbuja">Cargando...</div>
+    <div id="opciones-container"></div>
+    <button id="btn-siguiente" onclick="mostrarSiguienteDialogo()">Siguiente</button>
+  </div>
+</div>
+
+<!-- Corazón -->
+<div id="pantalla-corazon" style="display:none; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+  <div id="corazon">
+    <svg viewBox="0 0 100 90" width="250" height="250">
+      <path d="M50 85 L15 50 A20 20 0 0 1 50 20 A20 20 0 0 1 85 50 L50 85 Z" fill="none" stroke="#ff5c8d" stroke-width="4"/>
+      <path id="corazon-fill" d="M50 85 L15 50 A20 20 0 0 1 50 20 A20 20 0 0 1 85 50 L50 85 Z" fill="#ff5c8d"/>
+    </svg>
+  </div>
+  <div id="porcentaje" style="font-size: 1.5rem; margin-top: 10px;">0%</div>
+</div>
+
+<!-- Batalla Pokémon -->
+<div id="pantalla-batalla" style="display:none; flex-direction: column; align-items: center;">
+  <div class="personaje-wrapper">
+    <img id="personaje-batalla" src="assets/img/personaje-seria.png" alt="Reese Batalla" />
+  </div>
+  <h2>¡Batalla del Amor!</h2>
+  <div class="vidas">
+    <div class="barra-reese">Reese: <progress id="vida-reese" value="100" max="100"></progress></div>
+    <div>Alaska: <progress id="vida-alaska" value="100" max="100"></progress></div>
+  </div>
+  <div class="acciones">
+    <button class="btn btn-danger" onclick="atacar('Beso')">Beso 💋</button>
+    <button class="btn btn-danger" onclick="atacar('Abrazo')">Abrazo 🤗</button>
+    <button class="btn btn-danger" onclick="atacar('Cariño')">Mimito 🧸</button>
+    <button class="btn btn-secondary" onclick="curar()">Curarse ❤️</button>
+  </div>
+  <div id="mensaje-batalla" style="margin-top: 20px;">¿Qué hará Reese?</div>
+</div>
+
+<!-- Felicitaciones -->
+<div id="pantalla-felicitaciones" style="display:none; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+  <h2>¡Felicidades por ganar la batalla del amor!</h2>
+  <p>Aunque te dejé ganar, lograste re enamorarme con esa carita linda</p>
+  <button class="btn btn-primary" onclick="mostrarPregunta()">Continuar</button>
+</div>
+
+<!-- Pregunta -->
+<div class="pantalla-pregunta" id="pantalla-final" style="display: none; flex-direction: column; align-items: center;">
+  <div class="cuadro">¿Quieres seguir esta historia de amor como mi novia?</div>
+  <div class="botones-pregunta">
+    <button onclick="respuestaFinal('sí')">Sí</button>
+    <button onclick="respuestaFinal('no')">No</button>
+  </div>
+  <div id="respuesta" style="margin-top: 20px;"></div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<script>
+// Diálogos y expresiones
+document.addEventListener('DOMContentLoaded', () => {
+  const dialogos = [
+    { texto: "¡Hola, Alaska! ¿Te gusta lo que hice para ti?", expresion: "feliz", opciones: [] },
+    { texto: "Realmente quería hacer algo significativo para ti, que logre expresar lo que siento...", expresion: "seria", opciones: [] },
+    { texto: "Y qué mejor que hacerlo con algo que me caracteriza, ¿no?", expresion: "feliz", opciones: [] },
+    { texto: "Espero que disfrutes esto, sino, voy a llorar cien años", expresion: "triste", opciones: [] },
+    { texto: "¿Estás lista?", expresion: "feliz", opciones: [
+      { texto: "Sí, estoy lista", siguiente: 8 },
+      { texto: "No estoy segura", siguiente: 5 }
+    ]},
+    { texto: "¿Segura que no estás lista?", expresion: "seria", opciones: [
+      { texto: "Es joda, sí estoy lista", siguiente: 8 },
+      { texto: "Déjame, gorda, no estoy lista", siguiente: 6 }
+    ]},
+    { texto: "Pero yo quiero enseñarte lo que preparé, amor", expresion: "triste", opciones: [
+      { texto: "Dale, deja de llorar, tontita", siguiente: 7 }
+    ]},
+    { texto: "Bue, es que te pones pesada...", expresion: "enojada", opciones: [] },
+    { texto: "Entonces sigamos con lo que estábamos", expresion: "enamorada", opciones: [] },
+    { texto: "Espero te guste", expresion: "normal", opciones: [] }
+  ];
+
+  let indiceDialogo = 0;
+  const sonido = new Audio('assets/sounds/Hola-alaska.wav');
+  sonido.volume = 0.12;
+
+  function cambiarExpresion(expresion) {
+    document.getElementById('personaje').src = `assets/img/personaje-${expresion}.png`;
+  }
+
+  function mostrarDialogo(indice) {
+    indiceDialogo = indice;
+    const dialogo = dialogos[indice];
+    const divDialogo = document.getElementById('dialogo');
+    const opcionesCont = document.getElementById('opciones-container');
+    const btnSiguiente = document.getElementById('btn-siguiente');
+
+    cambiarExpresion(dialogo.expresion);
+    opcionesCont.innerHTML = '';
+    divDialogo.textContent = '';
+    btnSiguiente.style.display = 'none';
+
+    let i = 0;
+    function escribirLetra() {
+      if (i < dialogo.texto.length) {
+        divDialogo.textContent += dialogo.texto[i];
+        if (dialogo.texto[i] !== ' ' && i % 2 === 0) {
+          sonido.currentTime = 0;
+          sonido.play().catch(() => {});
+        }
+        i++;
+        setTimeout(escribirLetra, 35);
+      } else {
+        if (dialogo.opciones.length > 0) {
+          dialogo.opciones.forEach(opcion => {
+            const btn = document.createElement('button');
+            btn.textContent = opcion.texto;
+            btn.classList.add('btn', 'btn-outline-danger', 'm-2');
+            btn.onclick = () => mostrarDialogo(opcion.siguiente);
+            opcionesCont.appendChild(btn);
+          });
+        } else {
+          btnSiguiente.style.display = 'inline-block';
+        }
+      }
+    }
+
+    escribirLetra();
+  }
+
+  window.mostrarSiguienteDialogo = function() {
+    if (++indiceDialogo < dialogos.length) {
+      mostrarDialogo(indiceDialogo);
+    } else {
+      document.getElementById('escena').style.display = 'none';
+      iniciarAnimacionCorazon();
+    }
+  };
+
+  function iniciarAnimacionCorazon() {
+    const pantallaCorazon = document.getElementById('pantalla-corazon');
+    const corazonFill = document.getElementById('corazon-fill');
+    const porcentaje = document.getElementById('porcentaje');
+
+    pantallaCorazon.style.display = 'flex';
+    let progreso = 0;
+
+    const intervalo = setInterval(() => {
+      progreso++;
+      porcentaje.textContent = `${progreso}%`;
+      corazonFill.style.clipPath = `inset(${100 - progreso}% 0 0 0)`;
+
+      if (progreso >= 100) {
+        clearInterval(intervalo);
+        pantallaCorazon.style.display = 'none';
+        iniciarBatalla();
+      }
+    }, 40);
+  }
+
+  document.getElementById('btn-iniciar').addEventListener('click', () => {
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('escena').style.display = 'flex';
+    mostrarDialogo(0);
+    document.getElementById('musica-fondo').volume = 0.08;
+    document.getElementById('musica-fondo').play().catch(() => {});
+  });
+});
+
+// BATALLA
+let vidaReese = 100;
+let vidaJugador = 100;
+
+function cambiarExpresionBatalla(expresion) {
+  document.getElementById('personaje-batalla').src = `assets/img/personaje-${expresion}.png`;
+}
+
+function iniciarBatalla() {
+  document.getElementById('pantalla-batalla').style.display = 'flex';
+  mostrarMensajeBatalla("¡Comienza la batalla del amor!");
+}
+
+function atacar(tipo) {
+  vidaReese -= Math.floor(Math.random() * 20) + 5;
+  vidaReese = Math.max(0, vidaReese);
+  document.getElementById('vida-reese').value = vidaReese;
+  cambiarExpresionBatalla('feliz');
+  mostrarMensajeBatalla(`Usaste ${tipo}! Como la enamoras, mal`);
+
+  if (vidaReese <= 0) {
+    terminarBatalla();
+  } else {
+    setTimeout(contraAtaque, 1500);
+  }
+}
+
+function contraAtaque() {
+  vidaJugador -= Math.floor(Math.random() * 15) + 5;
+  vidaJugador = Math.max(0, vidaJugador);
+  document.getElementById('vida-alaska').value = vidaJugador;
+  cambiarExpresionBatalla('enamorada');
+  mostrarMensajeBatalla("¡Reese te agarra a besitos por todos lados!");
+  setTimeout(() => cambiarExpresionBatalla('seria'), 1500);
+
+  if (vidaJugador <= 0) {
+    alert("Oh no, perdiste... inténtalo de nuevo");
+    location.reload();
+  }
+}
+
+function mostrarMensajeBatalla(mensaje) {
+  document.getElementById('mensaje-batalla').innerText = mensaje;
+}
+
+function curar() {
+  vidaJugador = Math.min(100, vidaJugador + 20);
+  document.getElementById('vida-alaska').value = vidaJugador;
+  mostrarMensajeBatalla("Te curaste un poco 💖");
+}
+
+// Terminar batalla y mostrar pregunta
+function terminarBatalla() {
+  document.getElementById('pantalla-batalla').style.display = 'none';
+  document.getElementById('pantalla-felicitaciones').style.display = 'flex';
+}
+
+function mostrarPregunta() {
+  document.getElementById('pantalla-felicitaciones').style.display = 'none';
+  document.getElementById('pantalla-final').style.display = 'flex';
+}
+
+// Respuesta final
+function respuestaFinal(respuesta) {
+  const respuestaDiv = document.getElementById('respuesta');
+  if (respuesta === 'sí') {
+    respuestaDiv.innerHTML = "<h3>Sabía que dirías que sí, mi bonita 💕</h3>";
+  } else {
+    respuestaDiv.innerHTML = "<h3>Bueno... ni modo, aunque podés apretar que sí...</h3>";
+  }
+}
+</script>
+
+</body>
+</html>
